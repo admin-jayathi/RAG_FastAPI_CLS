@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        TRIAGE_SERVICE_URL = "http://YOUR_TRIAGE_MACHINE_IP:8000/triage"
+        TRIAGE_SERVICE_URL = "http://192.168.1.41:8000/triage"
     }
 
     stages {
