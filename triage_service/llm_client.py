@@ -50,34 +50,63 @@ def load_prompt(failure: dict) -> list:
         }
     ]
 
+
 def call_llm(messages: list) -> dict:
-    """
-    Calls the local LLM and parses its JSON response.
-    Retries once if JSON parsing fails.
-    """
-    for attempt in range(2):  # try twice before giving up
+    for attempt in range(2):
         try:
             resp = client.chat.completions.create(
                 model=MODEL,
                 messages=messages,
-                temperature=0.1,    # low = deterministic classification
-                max_tokens=512,
+                temperature=0.1,
+                max_tokens=1024,  # increased — reasoning models need more tokens
             )
 
-            raw = resp.choices[0].message.content.strip()
+            choice = resp.choices[0].message
 
-            # Strip markdown fences if the model wraps output anyway
-            if raw.startswith("```"):
+            # Gemma 4 is a reasoning model — it puts output in reasoning_content
+            # and leaves content empty. We check both.
+            raw = ""
+            if choice.content and choice.content.strip():
+                raw = choice.content.strip()
+            elif hasattr(choice, "reasoning_content") and choice.reasoning_content:
+                # Extract JSON from inside the reasoning text
+                reasoning = choice.reasoning_content
+                print(f"\n[LLM REASONING]:\n{reasoning[:500]}\n")
+                # Find the last JSON object in the reasoning
+                start = reasoning.rfind("{")
+                end = reasoning.rfind("}") + 1
+                if start != -1 and end > start:
+                    raw = reasoning[start:end]
+
+            print(f"\n[LLM RAW OUTPUT]: {raw}\n")
+
+            if not raw:
+                raise json.JSONDecodeError("Empty response", "", 0)
+
+            # Strip markdown fences if present
+            if "```" in raw:
                 parts = raw.split("```")
-                raw = parts[1] if len(parts) > 1 else raw
-                if raw.startswith("json"):
-                    raw = raw[4:].strip()
+                for part in parts:
+                    part = part.strip()
+                    if part.startswith("json"):
+                        part = part[4:].strip()
+                    if part.startswith("{"):
+                        raw = part
+                        break
+
+            # Extract JSON if there's text around it
+            if not raw.startswith("{"):
+                start = raw.find("{")
+                end = raw.rfind("}") + 1
+                if start != -1 and end > start:
+                    raw = raw[start:end]
 
             return json.loads(raw)
 
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            print(f"[LLM] JSON parse failed attempt {attempt + 1}: {e}")
+            print(f"[LLM] Raw was: '{raw}'")
             if attempt == 1:
-                # Both attempts failed — return a safe fallback
                 return {
                     "category": "UNKNOWN",
                     "confidence": 0.0,
@@ -89,7 +118,6 @@ def call_llm(messages: list) -> dict:
                     "rerun_recommended": False,
                     "parse_error": True
                 }
-            # First attempt failed — retry
             continue
 
 

@@ -57,3 +57,5 @@ Stack trace (top 20 lines):
 {stack_trace}
 Logs (tail):
 {logs_tail}
+Think through the failure carefully, then end your response with the JSON object and nothing after it.
+The last thing you write must be the JSON object starting with { and ending with }.
