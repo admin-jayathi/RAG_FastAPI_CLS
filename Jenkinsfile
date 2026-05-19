@@ -100,7 +100,7 @@ for testcase in testcases:
     )
 
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        with urllib.request.urlopen(req, timeout=120) as resp:
             result = json.loads(resp.read().decode())
             print(f"  Category   : {result.get('category')}")
             print(f"  Confidence : {result.get('confidence')}")
