@@ -41,36 +41,36 @@ def test_concurrent_session_update():
     assert result, "ConcurrentModificationException: session updated by another thread"
 
 
-# ─────────────────────────────────────────────
-# 3. ENV_ISSUE — service unreachable
-#    Always fails because the service doesn't exist
-# ─────────────────────────────────────────────
-def test_payment_service_health():
-    """Simulates payment service being down."""
-    try:
-        resp = requests.get(
-            "http://payment-service.internal:9999/health",
-            timeout=2
-        )
-        assert resp.status_code == 200
-    except Exception:
-        raise AssertionError(
-            "HTTP 503: payment-service unreachable after 3 retries"
-        )
+# # ─────────────────────────────────────────────
+# # 3. ENV_ISSUE — service unreachable
+# #    Always fails because the service doesn't exist
+# # ─────────────────────────────────────────────
+# def test_payment_service_health():
+#     """Simulates payment service being down."""
+#     try:
+#         resp = requests.get(
+#             "http://payment-service.internal:9999/health",
+#             timeout=2
+#         )
+#         assert resp.status_code == 200
+#     except Exception:
+#         raise AssertionError(
+#             "HTTP 503: payment-service unreachable after 3 retries"
+#         )
 
 
-def test_database_connection():
-    """Simulates DB being unreachable."""
-    try:
-        resp = requests.get(
-            "http://nonexistent-db.internal:5432/ping",
-            timeout=2
-        )
-        assert resp.status_code == 200
-    except Exception:
-        raise AssertionError(
-            "ConnectionRefusedError: could not connect to postgres at db.internal:5432"
-        )
+# def test_database_connection():
+#     """Simulates DB being unreachable."""
+#     try:
+#         resp = requests.get(
+#             "http://nonexistent-db.internal:5432/ping",
+#             timeout=2
+#         )
+#         assert resp.status_code == 200
+#     except Exception:
+#         raise AssertionError(
+#             "ConnectionRefusedError: could not connect to postgres at db.internal:5432"
+#         )
 
 
 # # ─────────────────────────────────────────────
