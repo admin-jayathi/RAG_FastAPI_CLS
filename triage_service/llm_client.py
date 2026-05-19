@@ -17,10 +17,10 @@ MODEL = os.getenv("LLM_MODEL", "local-model")
 def load_prompt(failure: dict) -> list:
     """
     Loads the prompt template and fills in failure details.
-    The prompt is the ONLY place where category logic lives.
-    The AI reads it and makes all classification decisions.
+    We use manual string replacement instead of .format()
+    because the prompt contains JSON examples with {curly braces}
+    that would confuse Python's format() method.
     """
-    # Build path relative to this file's location
     prompt_path = os.path.join(
         os.path.dirname(__file__), "prompts", "v1.txt"
     )
@@ -28,15 +28,16 @@ def load_prompt(failure: dict) -> list:
     with open(prompt_path, "r") as f:
         template = f.read()
 
-    user_content = template.format(
-        test_name=failure.get("test_name", "unknown"),
-        suite=failure.get("suite", "unknown"),
-        history=failure.get("history", []),
-        exception_type=failure.get("exception_type", ""),
-        exception_message=failure.get("exception_message", ""),
-        stack_trace=failure.get("stack_trace", ""),
-        logs_tail=failure.get("logs_tail", ""),
-    )
+    # Replace only our actual placeholders manually
+    # This avoids .format() choking on the JSON schema curly braces
+    user_content = template \
+        .replace("{test_name}",        str(failure.get("test_name", "unknown"))) \
+        .replace("{suite}",            str(failure.get("suite", "unknown"))) \
+        .replace("{history}",          str(failure.get("history", []))) \
+        .replace("{exception_type}",   str(failure.get("exception_type", ""))) \
+        .replace("{exception_message}",str(failure.get("exception_message", ""))[:500]) \
+        .replace("{stack_trace}",      str(failure.get("stack_trace", ""))[:2000]) \
+        .replace("{logs_tail}",        str(failure.get("logs_tail", ""))[:1000])
 
     return [
         {
@@ -48,7 +49,6 @@ def load_prompt(failure: dict) -> list:
             "content": user_content
         }
     ]
-
 
 def call_llm(messages: list) -> dict:
     """

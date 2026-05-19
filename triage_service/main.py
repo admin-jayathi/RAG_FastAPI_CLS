@@ -27,30 +27,18 @@ def health():
     """Jenkins and monitoring ping this to check the service is up."""
     return {"status": "ok"}
 
-
 @app.post("/triage")
 def triage_failure(event: FailureEvent):
-    """
-    Main endpoint. Receives a failure event from Jenkins,
-    sends it to the LLM, and routes based on AI output.
-    Returns the full AI decision as JSON.
-    """
     try:
         failure = event.dict()
-
-        # Step 1 — clean and truncate inputs
         failure = preprocess(failure)
-
-        # Step 2 — AI makes all decisions
         result = triage(failure)
-
-        # Step 3 — act on what AI decided
         route(failure, result)
-
         return result
-
     except Exception as e:
+        import traceback
+        traceback.print_exc()  # prints full error in your uvicorn terminal
         raise HTTPException(
             status_code=500,
-            detail=f"Triage failed: {str(e)}"
+            detail=str(e)
         )
