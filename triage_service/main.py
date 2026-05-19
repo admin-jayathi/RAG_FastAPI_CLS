@@ -2,9 +2,9 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
 
-from triage_service.preprocessor import preprocess
-from triage_service.llm_client import triage
-from triage_service.router import route
+from preprocessor import preprocess
+from llm_client import triage
+from router import route
 
 app = FastAPI(
     title="Test Auto-Triage Service",

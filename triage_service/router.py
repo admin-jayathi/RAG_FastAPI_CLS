@@ -1,4 +1,4 @@
-from triage_service.notifier import notify_slack
+from notifier import notify_slack
 
 
 def route(failure: dict, result: dict):
