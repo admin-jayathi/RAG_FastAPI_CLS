@@ -41,93 +41,93 @@ def test_concurrent_session_update():
     assert result, "ConcurrentModificationException: session updated by another thread"
 
 
-# # ─────────────────────────────────────────────
-# # 3. ENV_ISSUE — service unreachable
-# #    Always fails because the service doesn't exist
-# # ─────────────────────────────────────────────
-# def test_payment_service_health():
-#     """Simulates payment service being down."""
-#     try:
-#         resp = requests.get(
-#             "http://payment-service.internal:9999/health",
-#             timeout=2
-#         )
-#         assert resp.status_code == 200
-#     except Exception:
-#         raise AssertionError(
-#             "HTTP 503: payment-service unreachable after 3 retries"
-#         )
+# ─────────────────────────────────────────────
+# 3. ENV_ISSUE — service unreachable
+#    Always fails because the service doesn't exist
+# ─────────────────────────────────────────────
+def test_payment_service_health():
+    """Simulates payment service being down."""
+    try:
+        resp = requests.get(
+            "http://payment-service.internal:9999/health",
+            timeout=2
+        )
+        assert resp.status_code == 200
+    except Exception:
+        raise AssertionError(
+            "HTTP 503: payment-service unreachable after 3 retries"
+        )
 
 
-# def test_database_connection():
-#     """Simulates DB being unreachable."""
-#     try:
-#         resp = requests.get(
-#             "http://nonexistent-db.internal:5432/ping",
-#             timeout=2
-#         )
-#         assert resp.status_code == 200
-#     except Exception:
-#         raise AssertionError(
-#             "ConnectionRefusedError: could not connect to postgres at db.internal:5432"
-#         )
+def test_database_connection():
+    """Simulates DB being unreachable."""
+    try:
+        resp = requests.get(
+            "http://nonexistent-db.internal:5432/ping",
+            timeout=2
+        )
+        assert resp.status_code == 200
+    except Exception:
+        raise AssertionError(
+            "ConnectionRefusedError: could not connect to postgres at db.internal:5432"
+        )
 
 
-# # ─────────────────────────────────────────────
-# # 4. LOCATOR_BROKEN — UI element not found
-# #    Simulates Selenium/Playwright selector failure
-# # ─────────────────────────────────────────────
-# def test_submit_button_click():
-#     """Simulates a broken CSS locator after UI change."""
-#     dom_snapshot = '<button id="btn-submit-v2">Submit</button>'
-#     locator = "#submit-btn"  # old locator, no longer matches
-#     assert locator in dom_snapshot, (
-#         f"NoSuchElementException: element '{locator}' not found in DOM"
-#     )
+# ─────────────────────────────────────────────
+# 4. LOCATOR_BROKEN — UI element not found
+#    Simulates Selenium/Playwright selector failure
+# ─────────────────────────────────────────────
+def test_submit_button_click():
+    """Simulates a broken CSS locator after UI change."""
+    dom_snapshot = '<button id="btn-submit-v2">Submit</button>'
+    locator = "#submit-btn"  # old locator, no longer matches
+    assert locator in dom_snapshot, (
+        f"NoSuchElementException: element '{locator}' not found in DOM"
+    )
 
 
-# def test_login_form_username_field():
-#     """Simulates input field locator broken after redesign."""
-#     dom_snapshot = '<input data-testid="email-input" />'
-#     locator = "#username"  # old locator
-#     assert locator in dom_snapshot, (
-#         f"NoSuchElementException: '{locator}' not found — UI was redesigned"
-#     )
+def test_login_form_username_field():
+    """Simulates input field locator broken after redesign."""
+    dom_snapshot = '<input data-testid="email-input" />'
+    locator = "#username"  # old locator
+    assert locator in dom_snapshot, (
+        f"NoSuchElementException: '{locator}' not found — UI was redesigned"
+    )
 
 
-# # ─────────────────────────────────────────────
-# # 5. AUTH_ISSUE — token expired / 401
-# # ─────────────────────────────────────────────
-# def test_api_call_with_expired_token():
-#     """Simulates calling an API with an expired JWT."""
-#     response_status = 401  # server says unauthorized
-#     assert response_status == 200, (
-#         "AuthenticationError: JWT token expired — received 401 Unauthorized"
-#     )
+# ─────────────────────────────────────────────
+# 5. AUTH_ISSUE — token expired / 401
+# ─────────────────────────────────────────────
+def test_api_call_with_expired_token():
+    """Simulates calling an API with an expired JWT."""
+    response_status = 401  # server says unauthorized
+    assert response_status == 200, (
+        "AuthenticationError: JWT token expired — received 401 Unauthorized"
+    )
 
 
-# def test_admin_dashboard_access():
-#     """Simulates 403 Forbidden on protected route."""
-#     response_status = 403
-#     assert response_status == 200, (
-#         "AuthorizationError: 403 Forbidden — user lacks admin role"
-#     )
+def test_admin_dashboard_access():
+    """Simulates 403 Forbidden on protected route."""
+    response_status = 403
+    assert response_status == 200, (
+        "AuthorizationError: 403 Forbidden — user lacks admin role"
+    )
 
 
-# # ─────────────────────────────────────────────
-# # 6. TEST_DATA_ISSUE — missing/bad test data
-# # ─────────────────────────────────────────────
-# def test_order_history_for_user():
-#     """Simulates test user having no orders in DB."""
-#     test_user_orders = []  # test data was wiped
-#     assert len(test_user_orders) > 0, (
-#         "AssertionError: test user 'qa_user_01' has no orders — test data missing"
-#     )
+# ─────────────────────────────────────────────
+# 6. TEST_DATA_ISSUE — missing/bad test data
+# ─────────────────────────────────────────────
+def test_order_history_for_user():
+    """Simulates test user having no orders in DB."""
+    test_user_orders = []  # test data was wiped
+    assert len(test_user_orders) > 0, (
+        "AssertionError: test user 'qa_user_01' has no orders — test data missing"
+    )
 
 
-# def test_product_catalogue_not_empty():
-#     """Simulates product table being empty in test env."""
-#     products = []  # empty — test data issue
-#     assert len(products) > 0, (
-#         "AssertionError: product catalogue is empty in test environment"
-#     )
+def test_product_catalogue_not_empty():
+    """Simulates product table being empty in test env."""
+    products = []  # empty — test data issue
+    assert len(products) > 0, (
+        "AssertionError: product catalogue is empty in test environment"
+    )
