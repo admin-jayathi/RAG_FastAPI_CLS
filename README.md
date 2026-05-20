@@ -416,7 +416,7 @@ if category == "PRODUCT_BUG":
     file_jira()
 ```
 
-Problem: Adding a new category means editing code. Your sir (correctly) pointed out that **the AI should own all decisions**. Now:
+Problem: Adding a new category means editing code. The team pointed the problem that **the AI should own all decisions**. Now:
 
 ```python
 if result.get("is_real_bug"):
